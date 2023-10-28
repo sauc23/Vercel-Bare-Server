@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+
+<div class="w3-container">
+<h1>Hello World</h1>
+<h2>Congrats, You Just Lauched an Up to Date Bare Server Using Vercel</h2>
+<br>
+<br>
+<br>
+<center>
+    <p id="versions">Current Versions: </p>
+</center>
+    <script>
+        // Define the URL to fetch the JSON data from
+        const url = '/bare/';
+
+        // Fetch the JSON data from the URL
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // Access the "versions" array from the JSON data
+                const versions = data.versions;
+
+                // Create a new array with the versions converted to uppercase
+                const versionsUppercase = versions.map(version => version.toUpperCase());
+
+                // Create a comma-separated string of the versions
+                const versionsString = versionsUppercase.join(', ');
+
+                // Update the <p> element with the versions
+                const versionsElement = document.getElementById('versions');
+                versionsElement.textContent += versionsString;
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    </script>
+</div>
+
+
+</body>
+</html> 
