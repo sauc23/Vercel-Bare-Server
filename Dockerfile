@@ -1,14 +1,13 @@
-# Use the official Node.js image as the base image
-FROM node:20
+FROM node:18-alpine
+ENV NODE_ENV=production
 
-# Set the working directory in the container
-WORKDIR /
+WORKDIR /app
 
-# Copy the application files into the working directory
-COPY . /
+COPY package*.json .
 
-# Install the application dependencies
 RUN npm install
 
-# Define the entry point for the container
+
+EXPOSE 8080
+
 CMD ["npm", "start"]
