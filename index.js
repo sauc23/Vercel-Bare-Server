@@ -11,28 +11,37 @@ const bareServer = createBareServer("/bare/");
 
 httpServer.on("request", async (req, res) => {
   if (req.url === "/stats") {
-    // Serve the stats page when the "/stats" URL is requested
-    const statsPagePath = path.join(__dirname, "stats.html");
+    try {
+      // Serve the stats page when the "/stats" URL is requested
+      const statsPagePath = path.join(__dirname, "stats.html");
 
-    fs.readFile(statsPagePath, "utf8", (err, data) => {
-      if (err) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
-      } else {
-        // Gather system-related information
-        const memoryUsage = os.totalmem() - os.freemem();
-        const cpuUsage = await getCpuUsage();
-        const bandwidthUsage = "Calculate bandwidth usage here";
+      const data = await new Promise((resolve, reject) => {
+        fs.readFile(statsPagePath, "utf8", (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
 
-        // Replace placeholders in the HTML with actual values
-        data = data.replace("{MEMORY_USAGE}", formatBytes(memoryUsage));
-        data = data.replace("{CPU_USAGE}", `${cpuUsage}%`);
-        data = data.replace("{BANDWIDTH_USAGE}", bandwidthUsage);
+      // Gather system-related information
+      const memoryUsage = os.totalmem() - os.freemem();
+      const cpuUsage = await getCpuUsage();
+      const bandwidthUsage = "Calculate bandwidth usage here";
 
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(data);
-      }
-    });
+      // Replace placeholders in the HTML with actual values
+      const formattedData = data
+        .replace("{MEMORY_USAGE}", formatBytes(memoryUsage))
+        .replace("{CPU_USAGE}", `${cpuUsage}%`)
+        .replace("{BANDWIDTH_USAGE}", bandwidthUsage);
+
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(formattedData);
+    } catch (error) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal Server Error");
+    }
   } else if (bareServer.shouldRoute(req)) {
     bareServer.routeRequest(req, res);
   } else if (req.url === "/") {
