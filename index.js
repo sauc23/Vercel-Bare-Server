@@ -4,10 +4,14 @@ const os = require("os");
 const pidusage = require("pidusage");
 const fs = require("fs");
 const path = require("path");
+const bytes = require("bytes");
 
 // Create an HTTP server
 const httpServer = http.createServer();
 const bareServer = createBareServer("/bare/");
+
+// Track totalBytesSent globally
+let totalBytesSent = 0;
 
 httpServer.on("request", async (req, res) => {
   if (req.url === "/stats") {
@@ -15,7 +19,7 @@ httpServer.on("request", async (req, res) => {
       // Gather system-related information
       const memoryUsage = os.totalmem() - os.freemem();
       const cpuUsage = await getCpuUsage();
-      const bandwidthUsage = "Calculate bandwidth usage here";
+      const bandwidthUsage = bytes(totalBytesSent); // Convert totalBytesSent to a human-readable format
 
       // Create a JSON response
       const jsonResponse = {
@@ -91,3 +95,10 @@ function formatBytes(bytes, decimals = 2) {
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+
+// Interceptor for tracking totalBytesSent
+httpServer.on('response', (req, res) => {
+  res.on('finish', () => {
+    totalBytesSent += res.getHeader('content-length') || 0;
+  });
+});
