@@ -1,7 +1,5 @@
 const http = require("node:http");
 const { createBareServer } = require("@tomphttp/bare-server-node");
-const fs = require("fs");
-const path = require("path");
 const os = require("os");
 const pidusage = require("pidusage");
 
@@ -12,51 +10,27 @@ const bareServer = createBareServer("/bare/");
 httpServer.on("request", async (req, res) => {
   if (req.url === "/stats") {
     try {
-      // Serve the stats page when the "/stats" URL is requested
-      const statsPagePath = path.join(__dirname, "stats.html");
-
-      const data = await new Promise((resolve, reject) => {
-        fs.readFile(statsPagePath, "utf8", (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        });
-      });
-
       // Gather system-related information
       const memoryUsage = os.totalmem() - os.freemem();
       const cpuUsage = await getCpuUsage();
       const bandwidthUsage = "Calculate bandwidth usage here";
 
-      // Replace placeholders in the HTML with actual values
-      const formattedData = data
-        .replace("{MEMORY_USAGE}", formatBytes(memoryUsage))
-        .replace("{CPU_USAGE}", `${cpuUsage}%`)
-        .replace("{BANDWIDTH_USAGE}", bandwidthUsage);
+      // Create a JSON response
+      const jsonResponse = {
+        memoryUsage: formatBytes(memoryUsage),
+        cpuUsage: `${cpuUsage}%`,
+        bandwidthUsage: bandwidthUsage,
+      };
 
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(formattedData);
+      // Send JSON response
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(jsonResponse));
     } catch (error) {
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end("Internal Server Error");
     }
   } else if (bareServer.shouldRoute(req)) {
     bareServer.routeRequest(req, res);
-  } else if (req.url === "/") {
-    // Serve the index.html file when the root URL is requested
-    const indexPath = path.join(__dirname, "index.html");
-
-    fs.readFile(indexPath, "utf8", (err, data) => {
-      if (err) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
-      } else {
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(data);
-      }
-    });
   } else {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not found.");
