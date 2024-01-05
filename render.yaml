@@ -2,5 +2,5 @@ services:
   - type: web
     name: static website
     env: node
-    buildCommand: npm install
+    buildCommand: npm install npm install pidusage
     startCommand: npm start
