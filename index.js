@@ -5,11 +5,15 @@ const pidusage = require("pidusage");
 const fs = require("fs");
 const path = require("path");
 const bytes = require("bytes");
+const HttpsProxyAgent = require("https-proxy-agent");
 
 // Create an HTTP server
+const httpProxyAgent = new HttpsProxyAgent('http://103.151.177.221:8080');
 const httpServer = http.createServer();
-const bareServer = createBareServer("/bare/");
-
+const bareServer = createBareServer('/bare/', {
+	httpAgent: httpProxyAgent,
+	httpsAgent: httpProxyAgent,
+});
 // Track totalBytesSent globally
 let totalBytesSent = 0;
 
