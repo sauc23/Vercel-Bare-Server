@@ -7,7 +7,7 @@ const path = require("path");
 const bytes = require("bytes");
 const HttpsProxyAgent = require("https-proxy-agent");
 
-// Create an HTTP server
+// BARE SERVER
 const httpProxyAgent = new HttpsProxyAgent('http://103.151.177.221:8080');
 const httpServer = http.createServer();
 const bareServer = createBareServer('/bare/', {
