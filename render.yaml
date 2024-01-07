@@ -2,5 +2,5 @@ services:
   - type: web
     name: static website
     env: node
-    buildCommand: npm install npm install pidusage npm install bytes
+    buildCommand: npm install npm install pidusage npm install bytes npm https-proxy-agent
     startCommand: npm start
