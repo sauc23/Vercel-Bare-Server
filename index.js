@@ -1,3 +1,4 @@
+User
 const http = require("node:http");
 const { createBareServer } = require("@tomphttp/bare-server-node");
 const fs = require("fs");
@@ -28,4 +29,19 @@ httpServer.on("request", (req, res) => {
     res.end("Not found.");
   }
 });
-	
+
+httpServer.on("upgrade", (req, socket, head) => {
+  if (bareServer.shouldRoute(req)) {
+    bareServer.routeUpgrade(req, socket, head);
+  } else {
+    socket.end();
+  }
+});
+
+httpServer.on("listening", () => {
+  console.log("HTTP server listening");
+});
+
+httpServer.listen({
+  port: 8000,
+});
